@@ -1,10 +1,12 @@
 <template>
   <v-navigation-drawer app v-if="isSidebar">
-    <v-container>
+    <v-container fluid>
       <v-row>
-        <div class="m-10">
-          <v-btn>test</v-btn>
-        </div>
+        <template v-for="pref in prefData" :key="pref.prefCode">
+          <v-col cols="6">
+            <v-checkbox :label="pref.prefName" color="primary" hide-details></v-checkbox>
+          </v-col>
+        </template>
       </v-row>
     </v-container>
   </v-navigation-drawer>
@@ -24,10 +26,13 @@
 
 <script>
 import { ref } from "vue";
+import axios from "axios";
+import api from "../plugins/resas.js";
 
 export default {
   setup() {
     const isSidebar = ref(true);
+    const prefData = [];
 
     const isSidebarActive = () => {
       if (isSidebar.value) {
@@ -37,7 +42,13 @@ export default {
       }
     };
 
-    return { isSidebar, isSidebarActive };
+    axios
+      .get("https://opendata.resas-portal.go.jp/api/v1/prefectures", { headers: { "X-API-KEY": api.key } })
+      .then((res) => {
+        prefData.push(...res.data.result);
+      });
+
+    return { prefData, isSidebar, isSidebarActive };
   },
 };
 </script>
